@@ -1,3 +1,0 @@
-Lerc32.dll
-Lerc64.dll
-PlaneFinding.dll

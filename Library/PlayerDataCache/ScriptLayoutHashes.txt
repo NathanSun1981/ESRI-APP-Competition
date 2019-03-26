@@ -1,6 +1,6 @@
 Metro
 PlayerPath?
-E:/Git/ESRI2017 -APP Competition/build
+E:/Git/ESRI-APP-Competition/build
 SceneListBegin?
 Assets/Scenes/ESRI MAP.unity
 SceneListEnd?
@@ -16,7 +16,6 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 92d7a83ea3c7404e484f3b2eed421855 UnityEngine.Timeline.dll:UnityEngine.Timeline.GroupTrack
 92d7a83ea3c7404e484f3b2eed421855 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 df374c01140c2d578bf70cbd60073d1d UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
-c8767d6bf0dd59179176459713bdd2c5 Assembly-CSharp.dll:.Placeable
 a7e7543e2a0b972c935fd5bb8bfd1eca Assembly-CSharp.dll:Academy.HoloToolkit.Unity.RemoveSurfaceVertices
 a35dc9cca2faebc5f5f1aeb9e8e47bbe UnityEngine.UI.dll:UnityEngine.UI.AspectRatioFitter
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.UI.dll:UnityEngine.EventSystems.BaseInput
@@ -119,7 +118,7 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 463516d5b5fe8e67a0a24c48f2095b04 UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInputModule
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
-e1d1bf7d1625e51f38897c4ed91c0259 Assembly-CSharp.dll:Esri.PrototypeLab.HoloLens.Demo.TerrainMap
+fddf5e0936b634a0e29f6ef44855de22 Assembly-CSharp.dll:Esri.HoloLens.APP.TerrainMap
 26215f135eeb48d8fa1189498c107f6c Vuforia.UnityExtensions.dll:Vuforia.AnchorBehaviour
 0561521e336e270e6e5a9c61387cb838 Vuforia.UnityExtensions.dll:Vuforia.AnchorInputListenerBehaviour
 2e0fd93f459db951da0e2e94e2e33fb7 Vuforia.UnityExtensions.dll:Vuforia.AnchorStageBehaviour
@@ -192,7 +191,6 @@ d2a2bd333db22f480a8589e167314ecc Vuforia.UnityExtensions.dll:Vuforia.UserDefined
 15bea26698002c6c4a3087131232ce5c Vuforia.UnityExtensions.dll:Vuforia.WordBehaviour
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:Academy.HoloToolkit.Unity.HandsManager
 6f948fa594a2388dbbb35f700f7cfc7a Assembly-CSharp.dll:Academy.HoloToolkit.Unity.CursorManager
-c2706c3a189db8ed05d27e1ad76591fb Assembly-CSharp.dll:.PlaySpaceManager
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:Academy.HoloToolkit.Unity.SpatialMappingSource
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Advertisements.dll:UnityEngine.Advertisements.CallbackExecutor
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Advertisements.dll:UnityEngine.Advertisements.Editor.Placeholder
@@ -220,7 +218,6 @@ e9bdabf9265d758d56f01bb188916fa8 UnityEngine.Networking.dll:UnityEngine.Networki
 e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom
 67a5f2c97205d2e41a8ed7c7ce898f6e UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioSoundfieldExtension
 67a5f2c97205d2e41a8ed7c7ce898f6e UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioSourceExtension
-05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.InteractibleManager
 8364487869daec85887c87dd72f9aee7 Assembly-CSharp.dll:Academy.HoloToolkit.Unity.SpatialMappingManager
 9e0ef5bf862444b5dc48b5a99554ce7c UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioListenerExtension
 e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom
@@ -231,9 +228,7 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 463516d5b5fe8e67a0a24c48f2095b04 UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInputModule
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
-39ab3a2d32c5900139acd177044a152c Assembly-CSharp.dll:.Interactible
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:Academy.HoloToolkit.Unity.GestureManager
-ecd2c13a8828eba4a5b6eaaaeee884fa Assembly-CSharp.dll:.Maps
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
 cb31dbd9f9dc7182e2f66e6278436ccd Assembly-CSharp.dll:Academy.HoloToolkit.Unity.ObjectSurfaceObserver
 c200d5e5157786d95373f6cec9caf166 Assembly-CSharp.dll:Academy.HoloToolkit.Unity.SurfacePlane
@@ -272,7 +267,6 @@ d2a2bd333db22f480a8589e167314ecc Vuforia.UnityExtensions.dll:Vuforia.UserDefined
 3d1b89310e77c34bc0c8d7132231345c Vuforia.UnityExtensions.dll:Vuforia.WireframeBehaviour
 05524b8f659e7bfe5756d1335fec24ba Vuforia.UnityExtensions.dll:Vuforia.WireframeTrackableEventHandler
 15bea26698002c6c4a3087131232ce5c Vuforia.UnityExtensions.dll:Vuforia.WordBehaviour
-e6ec0d396222732a550bbb9eb76dcca2 Assembly-CSharp.dll:.SpaceCollectionManager
 26215f135eeb48d8fa1189498c107f6c Vuforia.UnityExtensions.dll:Vuforia.AnchorBehaviour
 0561521e336e270e6e5a9c61387cb838 Vuforia.UnityExtensions.dll:Vuforia.AnchorInputListenerBehaviour
 2e0fd93f459db951da0e2e94e2e33fb7 Vuforia.UnityExtensions.dll:Vuforia.AnchorStageBehaviour
@@ -308,3 +302,11 @@ d2a2bd333db22f480a8589e167314ecc Vuforia.UnityExtensions.dll:Vuforia.UserDefined
 3d1b89310e77c34bc0c8d7132231345c Vuforia.UnityExtensions.dll:Vuforia.WireframeBehaviour
 05524b8f659e7bfe5756d1335fec24ba Vuforia.UnityExtensions.dll:Vuforia.WireframeTrackableEventHandler
 15bea26698002c6c4a3087131232ce5c Vuforia.UnityExtensions.dll:Vuforia.WordBehaviour
+05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.Mark
+05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.StableMenu
+05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.CloseMenu
+6db0440ca685cb789345ee42eeb4c639 Assembly-CSharp.dll:.MenuEffect
+93a3dfa23d29bed0aff3f281a23feef0 Assembly-CSharp.dll:.ButtonZoomIn
+93a3dfa23d29bed0aff3f281a23feef0 Assembly-CSharp.dll:.ButtonZoomOut
+05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.ButtonMoveConfirm
+05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.ButtonShowAddress

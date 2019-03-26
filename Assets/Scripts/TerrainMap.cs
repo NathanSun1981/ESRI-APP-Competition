@@ -26,7 +26,7 @@ using UnityEngine.Networking;
 
 using UnityEngine.Windows.Speech;
 
-namespace Esri.PrototypeLab.HoloLens.Demo {
+namespace Esri.HoloLens.APP {
     public class TerrainMap : MonoBehaviour
     {
         [Tooltip("Minimum distance from user")]
@@ -35,39 +35,44 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
         [Tooltip("Maximum distance from user")]
         public float MaximimDistance = 10f;
 
-        //public string ManipulateType { get; set; }
-        public string ManipulateType;
-        public float RotationSensitivity = 25.0f;
-        public float MaxScale = 2f;
-        public float MinScale = 0.1f;
+        public int MapLevel;
 
-        private float rotationFactorY;
+        public int MaxMapLevel = 14;
+        public int MinMapLevel = 10;
+
+        public StableMenu buttonZoomPrefab;
+        public StableMenu buttonChoosePrefab;
+        private StableMenu buttonObject;
         private Vector3 navigationPreviousPosition;
 
         private UnityEngine.XR.WSA.Input.GestureRecognizer _gestureRecognizer = null;
         private KeywordRecognizer _keywordRecognizer = null;
         private bool _isMoving = true;
         private bool _NeedReloadKeywords = false;
-        private bool _isLoaded = false;
+        private bool _isMapLoaded = false;
+        private bool _isKeywordsLoaded = false;
         private bool _isFirstTimeLoading = false;
         private bool _NeedReloadMap = false;
         private Place _place;
         private Place[] places;
+        private Keyword[] keywordslist;
 
         private const float HIT_OFFSET = 0.01f;
         private const float HOVER_OFFSET = 2f;
-        private const float SIZE = 2f;
+        private const float SIZE = 1f;
         private const float HEIGHT = 1f;
         private const string SPEECH_PREFIX = "show";
+        private const string SPEECH_PREFIX_keywords = "find";
         private const float TERRAIN_BASE_HEIGHT = 0.02f;
         private const float VERTICAL_EXAGGERATION = 1.5f;
         private const int CHILDREN_LEVEL = 2; // 1 = Four child image tiles, 2 = Sixteen child images.
         private string queryURL = "http://142.104.69.88:8080/querydata.php";
-        private string updateURL = "http://142.104.69.88:8080/updatedata.php";
         private string mapName;
         private string reloadmapname;
         private string m_xml = "initial";
         private DateTime m_datetime;
+
+        public Mark markPrefab;
 
 
         public void Start()
@@ -75,14 +80,21 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
 
             m_datetime = DateTime.Now;
             StartCoroutine(DownloadPlaces(queryURL));
+            StartCoroutine(DownloadKeywords(queryURL));
             this._gestureRecognizer = new UnityEngine.XR.WSA.Input.GestureRecognizer();
             this._gestureRecognizer.SetRecognizableGestures(
-                //地图作为基准位置，不再响应操作。
                 UnityEngine.XR.WSA.Input.GestureSettings.Tap |
                 UnityEngine.XR.WSA.Input.GestureSettings.DoubleTap |
                 UnityEngine.XR.WSA.Input.GestureSettings.Hold |
                 UnityEngine.XR.WSA.Input.GestureSettings.ManipulationTranslate
             );
+
+            this._gestureRecognizer.HoldStartedEvent += (source, ray) =>
+            {
+                GameObject terrain = GameObject.Find("terrain");
+                buttonObject = Instantiate(buttonZoomPrefab, this.gameObject.transform.position + new Vector3(0, 0.2f, 0), Quaternion.Euler(0, -90, 0)) as StableMenu;
+                buttonObject.transform.parent = terrain.transform;
+            };
 
 
             // Repond to single and double tap.
@@ -128,8 +140,14 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                             // Exit if not terrain
                             if (GazeManager.Instance.FocusedObject.GetComponent<Terrain>() == null) { return; }
 
-                            // Get location
-                            this.StartCoroutine(this.AddStreetAddress(GazeManager.Instance.Position));
+                            //this.StartCoroutine(this.ChangeMapCoordinates(GazeManager.Instance.Position));
+                            GameObject terrain = GameObject.Find("terrain");
+                            buttonObject = Instantiate(buttonChoosePrefab, GazeManager.Instance.Position + new Vector3(0, 0.2f, 0), Quaternion.Euler(0, -90, 0)) as StableMenu;
+                            buttonObject.transform.parent = terrain.transform;
+
+                            //this.StartCoroutine(this.AddStreetAddress(GazeManager.Instance.Position));
+                            
+
                         }
                         break;
                     case 2:
@@ -148,7 +166,8 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                         break;
                 }
             };
-            
+
+
 
             this._gestureRecognizer.StartCapturingGestures();
 
@@ -167,25 +186,10 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
             
         }
 
+
         public void Update()
         {
-            DateTime dTimeNow = DateTime.Now;
-            TimeSpan ts = dTimeNow.Subtract(m_datetime);
-            float tsf = float.Parse(ts.TotalSeconds.ToString());
-            //每隔3s获取以下地图信息，以及哪张地图被加载
-            if (tsf > 5)
-            {
-                StartCoroutine(DownloadPlaces(queryURL));
-                //如果地图已经加载过则会查询是否有更新过的地图
-                var terrain = this.transform.Find("terrain");
-                if (terrain != null)
-                {
-                    StartCoroutine(CheckExistmap(queryURL));
-                }
-                m_datetime = DateTime.Now;
-
-            }
-			
+	
 			// Exit if moving is not enabled.
             if (!this._isMoving) { return; }
 
@@ -205,26 +209,25 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                 new Color32(255, 0, 0, 100);
 
         }
+
         public void LateUpdate()
         {
             //inital map when mapdata has been loaded
             
-            if (this._isLoaded && this._isFirstTimeLoading)
-            {
-                
+            if (this._isMapLoaded && this._isKeywordsLoaded && this._isFirstTimeLoading)
+            {              
                 var terrain = this.transform.Find("terrain");
                 if (terrain == null)
                 {
-                    //首先加载default的地图，只有在地图change的时候才会已经加载过的地图
                     for (int i = 0; i < places.Length; i++)
                     {
                         if (places[i].Name == "Default")
                         {
                             mapName = places[i].Name;
-                            this.StartCoroutine(this.AddTerrain(places[i], false));
+                            this.MapLevel = places[i].Level;
+                            this.StartCoroutine(this.AddTerrain(places[i]));
                         }
                     }
-
                 }
                 else
                 {
@@ -232,79 +235,60 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                     terrain.gameObject.layer = 0;
                 }
                 
-
                 this._isFirstTimeLoading = false;
 
                 var names = places.Select(p =>
                 {
                     return string.Format("{0} {1}", SPEECH_PREFIX, p.Name);
                 });
+
+                names = names.Concat(keywordslist.Select(p =>
+                {
+                    return string.Format("{0} {1}", SPEECH_PREFIX_keywords, p.keyword);
+                }));
+
                 this._keywordRecognizer = new KeywordRecognizer(names.ToArray());
+
                 this._keywordRecognizer.OnPhraseRecognized += (e) =>
                 {
                     // Exit if recognized speech not reliable.
                     if (e.confidence == ConfidenceLevel.Rejected) { return; }
 
-                    string name = e.text.Substring(SPEECH_PREFIX.Length);
-                    Place place = places.FirstOrDefault(p =>
+                    if (e.text.Substring(0, SPEECH_PREFIX.Length).Equals(SPEECH_PREFIX))
                     {
-                        return p.Name.ToLowerInvariant() == name.Trim().ToLowerInvariant();
-                    });
-                    if (place == null) { return; }
-                    mapName = place.Name;
-                    this.StartCoroutine(this.AddTerrain(place, true));
-                };
-                this._keywordRecognizer.Start();
-                this._NeedReloadKeywords = false;
-
-
-            }
-            //update keywords
-            if (this._NeedReloadKeywords && this._keywordRecognizer != null && this._keywordRecognizer.IsRunning)
-            {
-                this._keywordRecognizer.Stop();
-                this._keywordRecognizer.Dispose();
-
-                var names = places.Select(p =>
-                {
-                    return string.Format("{0} {1}", SPEECH_PREFIX, p.Name);
-                });
-                this._keywordRecognizer = new KeywordRecognizer(names.ToArray());
-                this._keywordRecognizer.OnPhraseRecognized += (e) =>
-                {
-                    // Exit if recognized speech not reliable.
-                    if (e.confidence == ConfidenceLevel.Rejected) { return; }
-
-                    string name = e.text.Substring(SPEECH_PREFIX.Length);
-                    Place place = places.FirstOrDefault(p =>
-                    {
-                        return p.Name.ToLowerInvariant() == name.Trim().ToLowerInvariant();
-                    });
-                    if (place == null) { return; }
-                    mapName = place.Name;
-                    this.StartCoroutine(this.AddTerrain(place, true));
-                };
-                this._keywordRecognizer.Start();
-
-
-                this._NeedReloadKeywords = false;
-            }
-            //update map
-            if (this._NeedReloadMap)
-            {
-                for (int i = 0; i < places.Length; i++)
-                {
-                    if (places[i].Name == reloadmapname)
-                    {
-                        mapName = places[i].Name;
-                        this._NeedReloadMap = false;
-                        this.StartCoroutine(this.AddTerrain(places[i], false));
+                        //find map
+                        string name = e.text.Substring(SPEECH_PREFIX.Length);
+                        Place place = places.FirstOrDefault(p =>
+                        {
+                            return p.Name.ToLowerInvariant() == name.Trim().ToLowerInvariant();
+                        });
+                        if (place == null) { return; }
+                        mapName = place.Name;
+                        this.MapLevel = place.Level;
+                        this.StartCoroutine(this.AddTerrain(place));
                     }
-                }
+                    else if (e.text.Substring(0, SPEECH_PREFIX_keywords.Length).Equals(SPEECH_PREFIX_keywords))
+                    {
+                        //find keywords
+                        string keywordname = e.text.Substring(SPEECH_PREFIX_keywords.Length);
+                        Keyword keyword = keywordslist.FirstOrDefault(p =>
+                        {
+                            return p.keyword.ToLowerInvariant() == keywordname.Trim().ToLowerInvariant();
+                        });
+
+                        this.StartCoroutine(this.GetSuggestion(this._place, keyword.keyword));
+                    }
+                
+                };
+                this._keywordRecognizer.Start();
+
+                this._NeedReloadKeywords = false;
+
             }
+
         }
 
-        private IEnumerator AddTerrain(Place place, bool needupdate)
+        private IEnumerator AddTerrain(Place place)
         {
             // Store current place
             this._place = place;
@@ -345,21 +329,9 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                     }
                 }));
             }
-
-            if (needupdate)
-            {
-                this.StartCoroutine(this.Updatemap(updateURL));
-                //destroy all exist building，erase the items form
-                GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Rotate");
-                for (var i = 0; i < gameObjects.Length; i++)
-                {
-                    Destroy(gameObjects[i]);
-                }
-                StartCoroutine(Eraseitems(queryURL));
-            }
-
             
         }
+
         private IEnumerator BuildTerrain(ElevationData elevation, Texture2D[] textures)
         {
             GameObject tc = GameObject.Find("terrain");
@@ -566,6 +538,40 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
             MeshCollider meshCollider = side.AddComponent<MeshCollider>();
             yield return null;
         }
+
+        private IEnumerator ChangeMapCoordinates(Vector3 position)
+        {
+            // Get UL and LR coordinates
+            var tileUL = this._place.Location.ToTile(this._place.Level);
+            var tileLR = new Tile()
+            {
+                Zoom = tileUL.Zoom,
+                X = tileUL.X + 1,
+                Y = tileUL.Y + 1
+            };
+            var coordUL = tileUL.UpperLeft;
+            var coordLR = tileLR.UpperLeft;
+
+            // Get tapped location relative to lower left.
+            GameObject terrain = GameObject.Find("terrain");
+            var location = position - terrain.transform.position;
+
+            var longitude = coordUL.Longitude + (coordLR.Longitude - coordUL.Longitude) * (location.x / SIZE);
+            var lattitude = coordLR.Latitude + (coordUL.Latitude - coordLR.Latitude) * (location.z / SIZE);
+
+            var coordinate = new Coordinate()
+            {
+                Longitude = longitude,
+                Latitude = lattitude
+            };
+            this._place.Location = coordinate;
+
+            this.StartCoroutine(this.AddTerrain(this._place));
+
+            yield return null;
+        }
+
+
         private IEnumerator AddStreetAddress(Vector3 position)
         {
             // Get UL and LR coordinates
@@ -591,9 +597,8 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                 Latitude = lattitude
             };
 
-            // Retrieve address.
-            this.StartCoroutine(GeocodeServer.ReverseGeocode(coordinate, address =>
-            {
+        // Retrieve address.
+            this.StartCoroutine(GeocodeServer.ReverseGeocode(coordinate, address => {
                 // Exit if no address found.
                 if (address == null)
                 {
@@ -614,8 +619,8 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                 lineRenderer.SetWidth(0.002f, 0.002f);
                 lineRenderer.SetVertexCount(2);
                 lineRenderer.SetPositions(new Vector3[] {
-                    position,
-                    position + Vector3.up * 0.15f
+                        position,
+                        position + Vector3.up * 0.15f
                 });
                 lineRenderer.receiveShadows = false;
                 lineRenderer.shadowCastingMode = ShadowCastingMode.Off;
@@ -637,9 +642,136 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
 
                 Billboard billboard = text.AddComponent<Billboard>();
                 billboard.PivotAxis = PivotAxis.Y;
-            }));
+             }));
             yield return null;
         }
+
+        private void CreatTagonMap(Coordinate location, string addresss)
+        {
+            var tileUL = this._place.Location.ToTile(this._place.Level);
+            var tileLR = new Tile()
+            {
+                Zoom = tileUL.Zoom,
+                X = tileUL.X + 1,
+                Y = tileUL.Y + 1
+            };
+            var coordUL = tileUL.UpperLeft;
+            var coordLR = tileLR.UpperLeft;
+
+            // Get tapped location relative to lower left.
+            GameObject terrain = GameObject.Find("terrain");
+
+            Vector3 locationonMap = new Vector3();
+
+            locationonMap.x = (location.Longitude - coordUL.Longitude) / (coordLR.Longitude - coordUL.Longitude) * SIZE;
+            locationonMap.z = (1 - (location.Latitude - coordUL.Latitude) / (coordLR.Latitude - coordUL.Latitude)) * SIZE;
+            
+            var positiononMap = locationonMap + terrain.transform.position;
+
+            if ((positiononMap.x <= terrain.transform.position.x + SIZE ) && (positiononMap.x >= terrain.transform.position.x) &&
+                (positiononMap.z <= terrain.transform.position.z + SIZE) && (positiononMap.z >= terrain.transform.position.z))
+            {
+                //creat a red dot on the map
+                Mark markobj = Instantiate(markPrefab, positiononMap + new Vector3(0f, 0.1f, 0f), Quaternion.Euler(0, -90, 0)) as Mark;
+                markobj.transform.parent = terrain.transform;
+
+
+                // Create leader line.
+                GameObject line = new GameObject();
+                line.transform.parent = terrain.transform;
+
+                LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
+                lineRenderer.material = new Material(Shader.Find("Standard"))
+                {
+                    color = Color.white
+                };
+                lineRenderer.SetWidth(0.002f, 0.002f);
+                lineRenderer.SetVertexCount(2);
+                lineRenderer.SetPositions(new Vector3[] {
+                positiononMap,
+                positiononMap + Vector3.up * 0.15f
+                });
+                lineRenderer.receiveShadows = false;
+                lineRenderer.shadowCastingMode = ShadowCastingMode.Off;
+                lineRenderer.useWorldSpace = false;
+
+                // Add text
+                GameObject text = new GameObject();
+                text.transform.parent = terrain.transform;
+                //text.tag = "Address";
+                text.transform.position = positiononMap + Vector3.up * 0.15f;
+                text.transform.localScale = new Vector3(0.002f, 0.002f, 1f);
+
+                TextMesh textMesh = text.AddComponent<TextMesh>();
+                textMesh.text = addresss;
+                textMesh.anchor = TextAnchor.LowerCenter;
+                textMesh.fontSize = 50;
+                textMesh.richText = true;
+                textMesh.color = Color.white;
+
+                Billboard billboard = text.AddComponent<Billboard>();
+                billboard.PivotAxis = PivotAxis.Y;
+            }            
+        }
+
+        private IEnumerator GetSuggestion(Place place, string keyword)
+        {
+            var coordinate = new Coordinate()
+            {
+                Longitude = place.Location.Longitude,
+                Latitude = place.Location.Latitude,
+            };
+
+            // Retrieve address.
+            this.StartCoroutine(GeocodeSuggestion.GetSuggestGeocode(keyword, coordinate, suggestAddresses =>
+            {
+                // Exit if no address found.
+                if (suggestAddresses == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("No Address");
+                    return;
+                }
+
+                SuggestionLocation[] suggestionsLocation = new SuggestionLocation[suggestAddresses.Length];
+                int i = 0;
+                foreach (SuggestAddresses suggestion in suggestAddresses)
+                {
+                    if (suggestion != null)
+                    {
+                        this.StartCoroutine(SuggestionToGeocode.suggestionToGeocode(suggestion, locations =>
+                        {
+                            //
+                            if (locations == null)
+                            {
+                                System.Diagnostics.Debug.WriteLine("No such Address");
+                                return;
+                            }
+
+                            SuggestionLocation[] suggestlocation = new SuggestionLocation[locations.Length];
+                            int j = 0;
+                            foreach (SuggestionLocation location in locations)
+                            {
+
+                                suggestionsLocation[j] = new SuggestionLocation();
+                                suggestionsLocation[j].Location = new Coordinate();
+                                suggestionsLocation[j].address = location.address;
+                                suggestionsLocation[j].Location = location.Location;
+                                suggestionsLocation[j].score = location.score;
+
+                                //every location creat flag on the map
+                                CreatTagonMap(location.Location, location.address);
+
+                            }
+                            j++;
+                        }));
+                    }
+                    i++;
+                }
+            }));
+
+            yield return null;
+        }
+
         private IEnumerator DownloadPlaces(string url)
         {
             string xml;
@@ -685,63 +817,66 @@ namespace Esri.PrototypeLab.HoloLens.Demo {
                         }
                     }
                 }
-                this._isLoaded = true;
+                this._isMapLoaded = true;
             }
         }
 
-        private IEnumerator CheckExistmap(string url)
+        private IEnumerator DownloadKeywords(string url)
         {
-            url += "?action=maploaded";
+            string xml;
+            int i = 0;
+            url += "?action=keywords";
             UnityWebRequest hs_get = UnityWebRequest.Get(url);
             yield return hs_get.SendWebRequest();
             if (hs_get.error != "" && hs_get.error != null)
             {
                 Debug.Log(hs_get.error);
+                xml = "";
             }
             else
             {
-                //如果查询到的地图非空并且，也就说其他用户已经加载了该地图，则
-                string xml = hs_get.downloadHandler.text;
-                if (xml != "" && xml != mapName)
+                xml = hs_get.downloadHandler.text;
+
+                string[] keywords = xml.Split('\n');
+                this.keywordslist = new Keyword[keywords.Length - 1];
+
+                foreach (string keyword in keywords)
                 {
-                    _NeedReloadMap = true;
-                    reloadmapname = xml;
+                    if (keyword.Length > 0)
+                    {
+                        keywordslist[i] = new Keyword();
+                        keywordslist[i].keyword = keyword;
+                        i++;
+                    }
                 }
+                this._isKeywordsLoaded = true;
             }
         }
 
-        private IEnumerator Updatemap(string url)
+        public void OnClickZoomOut()
         {
-            List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
-            formData.Add(new MultipartFormDataSection("mapName", mapName));
-            formData.Add(new MultipartFormDataSection("loadBy", SystemInfo.deviceName));
-            UnityWebRequest www = UnityWebRequest.Post(url, formData);
-            www.chunkedTransfer = false;
-            yield return www.SendWebRequest();
-            if (www.error != "" && www.error != null)
-            {
-                Debug.Log(www.error);
-            }
-            else
-            {
-                Debug.Log("Form update complete!" + www.downloadHandler.text);
-            }
+            // 缩小 - 图标
+            this._place.Level -= 1;
+            this.StartCoroutine(this.AddTerrain(this._place)); 
         }
 
-        private IEnumerator Eraseitems(string url)
+        public void OnClickZoomIn()
         {
-            url += "?action=deleteall";
-            UnityWebRequest hs_get = UnityWebRequest.Get(url);
-            yield return hs_get.SendWebRequest();
-            if (hs_get.error != "" && hs_get.error != null)
-            {
-                Debug.Log(hs_get.error);
-            }
-            else
-            {
-                Debug.Log("Form delete all items complete!");
-            }
+            //zoom in 放大 + 图标
+            this._place.Level += 1;
+            this.StartCoroutine(this.AddTerrain(this._place));
+        }
+
+        public void OnClickMoveConfirm(Vector3 position)
+        {
+            this.StartCoroutine(this.ChangeMapCoordinates(position - new Vector3(0f, 0.2f, 0f)));
+        }
+
+        public void OnClickShowAddress(Vector3 position)
+        {
+            this.StartCoroutine(this.AddStreetAddress(position - new Vector3(0f, 0.2f, 0f)));
         }
 
     }
+
 }

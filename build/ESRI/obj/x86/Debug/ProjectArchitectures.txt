@@ -1,2 +1,0 @@
-E:\Git\ESRI2017 -APP Competition\build\ESRI\ESRI.csproj;x86
-E:\Git\ESRI2017 -APP Competition\build\GeneratedProjects\UWP\Assembly-CSharp\Assembly-CSharp.csproj;x86
