@@ -233,10 +233,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\EsriPrototypeLab\Scripts\Address.cs" />
+    <Compile Include="Assets\EsriPrototypeLab\Scripts\CherryBlossomLocation.cs" />
     <Compile Include="Assets\EsriPrototypeLab\Scripts\Coordinate.cs" />
     <Compile Include="Assets\EsriPrototypeLab\Scripts\Elevation.cs" />
     <Compile Include="Assets\EsriPrototypeLab\Scripts\ElevationData.cs" />
     <Compile Include="Assets\EsriPrototypeLab\Scripts\Extensions.cs" />
+    <Compile Include="Assets\EsriPrototypeLab\Scripts\GeocodeCherryBlossom.cs" />
     <Compile Include="Assets\EsriPrototypeLab\Scripts\GeocodeServer.cs" />
     <Compile Include="Assets\EsriPrototypeLab\Scripts\GeocodeSuggestion.cs" />
     <Compile Include="Assets\EsriPrototypeLab\Scripts\Imagery.cs" />
@@ -264,11 +266,12 @@
     <Compile Include="Assets\HoloToolkit\Utilities\Scripts\Billboard.cs" />
     <Compile Include="Assets\HoloToolkit\Utilities\Scripts\Singleton.cs" />
     <Compile Include="Assets\HoloToolkit\Utilities\Scripts\SphereBasedTagalong.cs" />
+    <Compile Include="Assets\Scripts\ButtonClear.cs" />
+    <Compile Include="Assets\Scripts\ButtonClose.cs" />
     <Compile Include="Assets\Scripts\ButtonMoveConfirm.cs" />
     <Compile Include="Assets\Scripts\ButtonShowAddress.cs" />
     <Compile Include="Assets\Scripts\ButtonZoomIn.cs" />
     <Compile Include="Assets\Scripts\ButtonZoomOut.cs" />
-    <Compile Include="Assets\Scripts\CloseMenu.cs" />
     <Compile Include="Assets\Scripts\Mark.cs" />
     <Compile Include="Assets\Scripts\MenuEffect.cs" />
     <Compile Include="Assets\Scripts\StableMenu.cs" />

@@ -35,11 +35,6 @@ namespace Esri.HoloLens.APP {
         [Tooltip("Maximum distance from user")]
         public float MaximimDistance = 10f;
 
-        public int MapLevel;
-
-        public int MaxMapLevel = 14;
-        public int MinMapLevel = 10;
-
         public StableMenu buttonZoomPrefab;
         public StableMenu buttonChoosePrefab;
         private StableMenu buttonObject;
@@ -89,12 +84,14 @@ namespace Esri.HoloLens.APP {
                 UnityEngine.XR.WSA.Input.GestureSettings.ManipulationTranslate
             );
 
+            /*
             this._gestureRecognizer.HoldStartedEvent += (source, ray) =>
             {
                 GameObject terrain = GameObject.Find("terrain");
                 buttonObject = Instantiate(buttonZoomPrefab, this.gameObject.transform.position + new Vector3(0, 0.2f, 0), Quaternion.Euler(0, -90, 0)) as StableMenu;
                 buttonObject.transform.parent = terrain.transform;
             };
+            */
 
 
             // Repond to single and double tap.
@@ -145,8 +142,10 @@ namespace Esri.HoloLens.APP {
                             buttonObject = Instantiate(buttonChoosePrefab, GazeManager.Instance.Position + new Vector3(0, 0.2f, 0), Quaternion.Euler(0, -90, 0)) as StableMenu;
                             buttonObject.transform.parent = terrain.transform;
 
+                           //StartCoroutine(DownloadPlaces(queryURL));
+
                             //this.StartCoroutine(this.AddStreetAddress(GazeManager.Instance.Position));
-                            
+
 
                         }
                         break;
@@ -224,7 +223,6 @@ namespace Esri.HoloLens.APP {
                         if (places[i].Name == "Default")
                         {
                             mapName = places[i].Name;
-                            this.MapLevel = places[i].Level;
                             this.StartCoroutine(this.AddTerrain(places[i]));
                         }
                     }
@@ -264,7 +262,6 @@ namespace Esri.HoloLens.APP {
                         });
                         if (place == null) { return; }
                         mapName = place.Name;
-                        this.MapLevel = place.Level;
                         this.StartCoroutine(this.AddTerrain(place));
                     }
                     else if (e.text.Substring(0, SPEECH_PREFIX_keywords.Length).Equals(SPEECH_PREFIX_keywords))
@@ -276,13 +273,32 @@ namespace Esri.HoloLens.APP {
                             return p.keyword.ToLowerInvariant() == keywordname.Trim().ToLowerInvariant();
                         });
 
-                        this.StartCoroutine(this.GetSuggestion(this._place, keyword.keyword));
+                        if (keyword.keyword.Equals("cherryblossom") && (this._place.Name.Equals("Victoria") || this._place.Name.Equals("Default")))
+                        {
+                            this.StartCoroutine(this.GetCherryBlossom());
+                        }
+                        else
+                        {
+                            this.StartCoroutine(this.GetSuggestion(this._place, keyword.keyword));
+                        }                     
+
+                        GameObject[] objs = GameObject.FindGameObjectsWithTag("suggestmark");
+
+                        if (objs.Length > 0)
+                        {
+                            foreach (var obj in objs)
+                            {
+                                Destroy(obj);
+                            }
+                        }
                     }
                 
                 };
                 this._keywordRecognizer.Start();
 
                 this._NeedReloadKeywords = false;
+
+                //create
 
             }
 
@@ -537,6 +553,10 @@ namespace Esri.HoloLens.APP {
 
             MeshCollider meshCollider = side.AddComponent<MeshCollider>();
             yield return null;
+
+            buttonObject = Instantiate(buttonZoomPrefab, terrainObject.transform.position + new Vector3(0, 0.2f, 0), Quaternion.Euler(0, -90, 0)) as StableMenu;
+            buttonObject.transform.parent = terrain.transform;
+            yield return null;
         }
 
         private IEnumerator ChangeMapCoordinates(Vector3 position)
@@ -565,12 +585,12 @@ namespace Esri.HoloLens.APP {
                 Latitude = lattitude
             };
             this._place.Location = coordinate;
+            this._place.Level += 1;
 
             this.StartCoroutine(this.AddTerrain(this._place));
 
             yield return null;
         }
-
 
         private IEnumerator AddStreetAddress(Vector3 position)
         {
@@ -609,7 +629,7 @@ namespace Esri.HoloLens.APP {
                 // Create leader line.
                 GameObject line = new GameObject();
                 line.transform.parent = terrain.transform;
-                //line.tag = "Address";
+                line.tag = "addressmark";
 
                 LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
                 lineRenderer.material = new Material(Shader.Find("Standard"))
@@ -629,7 +649,7 @@ namespace Esri.HoloLens.APP {
                 // Add text
                 GameObject text = new GameObject();
                 text.transform.parent = terrain.transform;
-                //text.tag = "Address";
+                text.tag = "addressmark";
                 text.transform.position = position + Vector3.up * 0.15f;
                 text.transform.localScale = new Vector3(0.002f, 0.002f, 1f);
 
@@ -638,7 +658,8 @@ namespace Esri.HoloLens.APP {
                 textMesh.anchor = TextAnchor.LowerCenter;
                 textMesh.fontSize = 50;
                 textMesh.richText = true;
-                textMesh.color = Color.white;
+
+                textMesh.color = Color.green;
 
                 Billboard billboard = text.AddComponent<Billboard>();
                 billboard.PivotAxis = PivotAxis.Y;
@@ -646,7 +667,7 @@ namespace Esri.HoloLens.APP {
             yield return null;
         }
 
-        private void CreatTagonMap(Coordinate location, string addresss)
+        private void CreatTagonMap(Coordinate location, string addresss, bool showText)
         {
             var tileUL = this._place.Location.ToTile(this._place.Level);
             var tileLR = new Tile()
@@ -672,46 +693,38 @@ namespace Esri.HoloLens.APP {
                 (positiononMap.z <= terrain.transform.position.z + SIZE) && (positiononMap.z >= terrain.transform.position.z))
             {
                 //creat a red dot on the map
-                Mark markobj = Instantiate(markPrefab, positiononMap + new Vector3(0f, 0.1f, 0f), Quaternion.Euler(0, -90, 0)) as Mark;
+                Mark markobj = Instantiate(markPrefab, positiononMap + Vector3.up * 0.03f, Quaternion.Euler(0, -90, 0)) as Mark;
                 markobj.transform.parent = terrain.transform;
-
-
-                // Create leader line.
-                GameObject line = new GameObject();
-                line.transform.parent = terrain.transform;
-
-                LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
-                lineRenderer.material = new Material(Shader.Find("Standard"))
-                {
-                    color = Color.white
-                };
-                lineRenderer.SetWidth(0.002f, 0.002f);
-                lineRenderer.SetVertexCount(2);
-                lineRenderer.SetPositions(new Vector3[] {
-                positiononMap,
-                positiononMap + Vector3.up * 0.15f
-                });
-                lineRenderer.receiveShadows = false;
-                lineRenderer.shadowCastingMode = ShadowCastingMode.Off;
-                lineRenderer.useWorldSpace = false;
-
+                markobj.transform.localScale = markobj.transform.localScale * 2;
+                markobj.tag = "suggestmark";
                 // Add text
-                GameObject text = new GameObject();
-                text.transform.parent = terrain.transform;
-                //text.tag = "Address";
-                text.transform.position = positiononMap + Vector3.up * 0.15f;
-                text.transform.localScale = new Vector3(0.002f, 0.002f, 1f);
+                if (showText)
+                {
+                    GameObject text = new GameObject();
+                    text.transform.parent = terrain.transform;
+                    text.tag = "suggestmark";
+                    //text.tag = "Address";
+                    text.transform.position = positiononMap + Vector3.up * 0.15f;
+                    text.transform.localScale = new Vector3(0.002f, 0.002f, 1f);
 
-                TextMesh textMesh = text.AddComponent<TextMesh>();
-                textMesh.text = addresss;
-                textMesh.anchor = TextAnchor.LowerCenter;
-                textMesh.fontSize = 50;
-                textMesh.richText = true;
-                textMesh.color = Color.white;
+                    TextMesh textMesh = text.AddComponent<TextMesh>();
+                    textMesh.text = addresss;
+                    textMesh.anchor = TextAnchor.LowerCenter;
+                    textMesh.fontSize = 50;
+                    textMesh.richText = true;
+                    textMesh.color = Color.yellow;
 
-                Billboard billboard = text.AddComponent<Billboard>();
-                billboard.PivotAxis = PivotAxis.Y;
-            }            
+                    Billboard billboard = text.AddComponent<Billboard>();
+                    billboard.PivotAxis = PivotAxis.Y;
+                }
+                else
+                {
+                    markobj.GetComponent<MeshRenderer>().material.color = new Color(1f, 0.75f, 0.8f, 1f);
+                }
+                
+                
+               
+            }
         }
 
         private IEnumerator GetSuggestion(Place place, string keyword)
@@ -759,7 +772,7 @@ namespace Esri.HoloLens.APP {
                                 suggestionsLocation[j].score = location.score;
 
                                 //every location creat flag on the map
-                                CreatTagonMap(location.Location, location.address);
+                                CreatTagonMap(location.Location, location.address, true);
 
                             }
                             j++;
@@ -767,6 +780,34 @@ namespace Esri.HoloLens.APP {
                     }
                     i++;
                 }
+            }));
+
+            yield return null;
+        }
+
+        private IEnumerator GetCherryBlossom()
+        {
+            // Retrieve address.
+            this.StartCoroutine(GeocodeCherryBlossom.GetCherryBlossomLocation(locations =>
+            {
+                // Exit if no address found.
+                if (locations == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("No Address");
+                    return;
+                }
+
+                foreach (CherryBlossomLocation location in locations)
+                {
+                    //every location creat flag on the map
+                    int now = int.Parse(DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString());
+                    if (location != null && int.Parse(location.StartDate) < now && int.Parse(location.EndDate) > now)
+                    {
+                        CreatTagonMap(location.Location, location.address, false);
+                    }
+                     
+                }
+
             }));
 
             yield return null;

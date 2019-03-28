@@ -53,9 +53,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinimumDistance: 0.5
   MaximimDistance: 10
-  ManipulateType: zoom
-  RotationSensitivity: 25
-  MaxScale: 2
-  MinScale: 0.1
-  buttonPrefab: {fileID: 114629419550257254, guid: cbd8e760053b5294eb33ec25d8dd1151,
+  buttonZoomPrefab: {fileID: 114629419550257254, guid: 21e084915a76b9f4db15b7643e853a5b,
+    type: 2}
+  buttonChoosePrefab: {fileID: 114764721262368990, guid: 1d5019d2e22b402488f83b91fcd4c4af,
+    type: 2}
+  markPrefab: {fileID: 114426489858870618, guid: 9be16c4d7ef176043b1a6917eb8cf085,
     type: 2}
