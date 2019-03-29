@@ -7,13 +7,13 @@ This is an application designed for users who are embracing the Virtual Reality 
 
 A video demo can be checked from the link below: 
 
-https://drive.google.com/file/d/1H39NR5AbXRnstZK-8eJfIxBApM6qxrH4/view?usp=sharing
+https://drive.google.com/file/d/1T57VUWhBEHn68JYZzMUzrviTIxz798Az/view?usp=sharing
 
 This github repo contains source code for an experimental HoloLens mapping application developed by Esri's Prototype Lab. The original post can be found here: 
 
 https://github.com/Esri/hololens-terrain-viewer
 
-Built on top of the original application, this program has more new features enabled, such as voice recognition (using Microsoft .Net API) and voice control. As introduced in the video demo, a user can use voice control to change map locations (e.g. "switch to 'Vancouver'") and do multiple find-place searches (e.g. "find 'sushi'", "find 'cherry blossom'"). 
+Built on top of the original application, this program has more new features enabled, such as voice recognition (using Microsoft .Net API) and voice control. As introduced in the video demo, a user can use voice control to change map locations (e.g. "show to 'Vancouver'") and do multiple find-place searches (e.g. "find 'sushi'", "find 'cherry blossom'"). 
 
 # An application scenario for using this App
 
