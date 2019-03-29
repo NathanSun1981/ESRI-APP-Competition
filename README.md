@@ -1,5 +1,5 @@
 # ESRI-APP-Competition
-=== HoloLens APP for ESRI-APP-Competition ===
+HoloLens APP for ESRI-APP-Competition
 
 This is an application designed for users who are embracing the Virtual Reality (VR) world. To be more specific, an user can browse a 3D virtual Esri map with a Microsoft Hololens device (or using a HoloLens Emulator if no physical device availble). 
 
@@ -15,7 +15,7 @@ https://github.com/Esri/hololens-terrain-viewer
 
 Built on top of the original application, this program has more new features enabled, such as voice recognition (using Microsoft .Net API) and voice control. As introduced in the video demo, a user can use voice control to change map locations (e.g. "switch to 'Vancouver'") and do multiple find-place searches (e.g. "find 'sushi'", "find 'cherry blossom'"). 
 
-=== An application scenario for using this App ===
+# An application scenario for using this App
 
 “This is why I live here!” exclaims many a Victoriarites during cherry blossom season. Each spring, as the rainy season fades, city dwellers pack their sweaters away and are rewarded with one of the world’s most cheerful sites: thousands of cherry trees bursting with pink and white blooms.
 
@@ -36,7 +36,7 @@ And many many more places where you can't imagine and it always has so much fun 
 
 http://opendata.victoria.ca/datasets/tree-species
 
-=== How to Run the Application ===
+# How to Run the Application
 1. Check out or download the entire repository from github and install all the tools for the HoloLens environment. Make sure you have the latest update for Visual Studio 2017 and Unity and install the "Windows 10 SDK". More detailled instructions can be found here: 
 
 https://docs.microsoft.com/en-us/windows/mixed-reality/using-visual-studio
