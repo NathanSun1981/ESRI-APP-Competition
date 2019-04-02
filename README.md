@@ -1,7 +1,13 @@
 # ESRI-APP-Competition
 HoloLens APP for ESRI-APP-Competition
 
-This is an application designed for users who are embracing the Virtual Reality (VR) world. To be more specific, an user can browse a 3D virtual Esri map with a Microsoft Hololens device (or using a HoloLens Emulator if no physical device availble). 
+This repository was created for the ECCE'19 Competition in which teams were tasked to create new and unique apps powered by Esri technology and open data to help address a problem related to a specific theme. As the theme of 2019 is about 'Sustainable Urban Development' and 'Sustainable Communities', we targeted to create an App that can run on Desktop or mobile devices that can support the Virtual Reality (VR) and Augmented Reality (AR) technologies.  
+
+Urban designing is about shaping the physical features of cities, towns and villages and planning for the provision of municipal services to residents and visitors. Rather than proposing a traditional on-side field research before the real designing with manual drawing and measurement on papers, modern designing can be easily tasked on a digital map from which multiple kinds of geophysical information can be retrieved quickly and accurately. However, designers are usually used to do the planning on a 2-dimentional (2D) displayed basemap (e.g. Esri ArcGIS Maps) which has limitation for only showing a top-down view of the planned area, while a more immersive experience could be provided if the map can be displaned in 3D. Based on this idea, this application was created for computer-aided urban designing in a more interative way of using voice control and 3D immersive display.       
+
+# Introduction for the HoloLens App
+
+This is an application designed for users who are embracing VR/AR world. To be more specific, an user can browse a 3D virtual Esri map with a Microsoft Hololens device (or using a HoloLens Emulator if no physical device availble). 
 
 ![HoloLens App](https://github.com/NathanSun1981/ESRI-APP-Competition/blob/master/HololensApp01.png)
 
@@ -15,7 +21,7 @@ https://github.com/Esri/hololens-terrain-viewer
 
 Built on top of the original application, this program has more new features enabled, such as voice recognition (using Microsoft .Net API) and voice control. As introduced in the video demo, a user can use voice control to change map locations (e.g. "show to 'Vancouver'") and do multiple find-place searches (e.g. "find 'sushi'", "find 'cherry blossom'"). 
 
-# An application scenario for using this App
+# An application scenario for using this App 
 
 “This is why I live here!” exclaims many a Victoriarites during cherry blossom season. Each spring, as the rainy season fades, city dwellers pack their sweaters away and are rewarded with one of the world’s most cheerful sites: thousands of cherry trees bursting with pink and white blooms.
 
